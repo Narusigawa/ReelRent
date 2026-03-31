@@ -15,6 +15,7 @@ namespace ReelRent
         public CatalogControl()
         {
             InitializeComponent();
+            moviesFlowLayoutPanel.Width = flowLayoutPanel.ClientSize.Width - 200;
             LoadBanners();
             bannerTimer.Interval = 10000;
             bannerTimer.Tick += (s, e) => NextBanner();
@@ -147,6 +148,12 @@ namespace ReelRent
         // Публичный метод для фильтрации из MainForm
         public void FilterMovies(string query)
         {
+            // Сохраняем текущую ширину, чтобы не сжималась
+            int savedWidth = moviesFlowLayoutPanel.Width;
+
+            moviesFlowLayoutPanel.SuspendLayout();
+            moviesFlowLayoutPanel.Controls.Clear();
+
             if (string.IsNullOrWhiteSpace(query))
             {
                 // Показываем все фильмы
@@ -154,37 +161,42 @@ namespace ReelRent
                     LoadMoviesFromDatabase();
                 else
                     LoadTestMovies();
-                return;
-            }
-
-            moviesFlowLayoutPanel.Controls.Clear();
-            var allMovies = DatabaseHelper.TestConnection() ? DatabaseHelper.GetAllMovies() : null;
-            if (allMovies != null)
-            {
-                foreach (var movie in allMovies)
-                {
-                    if (movie.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
-                    {
-                        var movieCard = new MovieCard(movie);
-                        movieCard.MovieClicked += (s, m) => ShowMovieDetail(m);
-                        moviesFlowLayoutPanel.Controls.Add(movieCard);
-                    }
-                }
             }
             else
             {
-                for (int i = 1; i <= 15; i++)
+                // Реальный поиск по БД, если есть соединение
+                if (DatabaseHelper.TestConnection())
                 {
-                    string title = $"Фильм {i}";
-                    if (title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+                    // Используем запрос к БД с фильтрацией
+                    var filteredMovies = DatabaseHelper.SearchMoviesByTitle(query);
+                    foreach (var movie in filteredMovies)
                     {
-                        var movie = new Movie { Title = title, Genre = "Жанр", Year = 2020, AvailableCopies = 5 };
                         var movieCard = new MovieCard(movie);
                         movieCard.MovieClicked += (s, m) => ShowMovieDetail(m);
                         moviesFlowLayoutPanel.Controls.Add(movieCard);
                     }
                 }
+                else
+                {
+                    // Тестовые фильмы
+                    for (int i = 1; i <= 15; i++)
+                    {
+                        string title = $"Фильм {i}";
+                        if (title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+                        {
+                            var movie = new Movie { Title = title, Genre = "Жанр", Year = 2020, AvailableCopies = 5 };
+                            var movieCard = new MovieCard(movie);
+                            movieCard.MovieClicked += (s, m) => ShowMovieDetail(m);
+                            moviesFlowLayoutPanel.Controls.Add(movieCard);
+                        }
+                    }
+                }
             }
+
+            // Восстанавливаем ширину после добавления элементов
+            moviesFlowLayoutPanel.Width = savedWidth;
+            moviesFlowLayoutPanel.ResumeLayout();
+            moviesFlowLayoutPanel.PerformLayout();
         }
 
         public void RefreshCatalog()

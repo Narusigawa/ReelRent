@@ -169,7 +169,42 @@ namespace ReelRent
             }
             return banners;
         }
+        public static List<Movie> SearchMoviesByTitle(string query)
+        {
+            var movies = new List<Movie>();
+            string sql = "SELECT id, title, genre, year, director, actors, description, poster_filename, total_copies, available_copies, rental_price FROM movies WHERE title ILIKE @query ORDER BY title";
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new NpgsqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@query", $"%{query}%");
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            movies.Add(new Movie
+                            {
+                                Id = reader.GetInt32(0),
+                                Title = reader.GetString(1),
+                                Genre = reader.IsDBNull(2) ? null : reader.GetString(2),
+                                Year = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
+                                Director = reader.IsDBNull(4) ? null : reader.GetString(4),
+                                Actors = reader.IsDBNull(5) ? null : reader.GetString(5),
+                                Description = reader.IsDBNull(6) ? null : reader.GetString(6),
+                                PosterFileName = reader.IsDBNull(7) ? null : reader.GetString(7),
+                                TotalCopies = reader.GetInt32(8),
+                                AvailableCopies = reader.GetInt32(9),
+                                RentalPrice = reader.IsDBNull(10) ? 0 : reader.GetDecimal(10)
+                            });
+                        }
+                    }
+                }
+            }
+            return movies;
+        }
     }
+
 
     // Класс-модель фильма
     public class Movie
