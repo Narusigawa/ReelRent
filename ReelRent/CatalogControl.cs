@@ -15,7 +15,6 @@ namespace ReelRent
         public CatalogControl()
         {
             InitializeComponent();
-            moviesFlowLayoutPanel.Width = flowLayoutPanel.ClientSize.Width - 200;
             LoadBanners();
             bannerTimer.Interval = 10000;
             bannerTimer.Tick += (s, e) => NextBanner();
@@ -104,6 +103,7 @@ namespace ReelRent
 
         private void LoadTestMovies()
         {
+            moviesFlowLayoutPanel.SuspendLayout();
             moviesFlowLayoutPanel.Controls.Clear();
             for (int i = 1; i <= 15; i++)
             {
@@ -122,20 +122,27 @@ namespace ReelRent
                 };
                 var movieCard = new MovieCard(movie);
                 movieCard.MovieClicked += (s, m) => ShowMovieDetail(m);
+                EnsureCardSize(movieCard);
                 moviesFlowLayoutPanel.Controls.Add(movieCard);
             }
+            moviesFlowLayoutPanel.ResumeLayout(true);
+            moviesFlowLayoutPanel.PerformLayout();
         }
 
         private void LoadMoviesFromDatabase()
         {
+            moviesFlowLayoutPanel.SuspendLayout();
             moviesFlowLayoutPanel.Controls.Clear();
             var movies = DatabaseHelper.GetAllMovies();
             foreach (var movie in movies)
             {
                 var movieCard = new MovieCard(movie);
                 movieCard.MovieClicked += (s, m) => ShowMovieDetail(m);
+                EnsureCardSize(movieCard);
                 moviesFlowLayoutPanel.Controls.Add(movieCard);
             }
+            moviesFlowLayoutPanel.ResumeLayout(true);
+            moviesFlowLayoutPanel.PerformLayout();
         }
 
         private void ShowMovieDetail(Movie movie)
@@ -145,58 +152,50 @@ namespace ReelRent
             detailForm.ShowDialog();
         }
 
-        // Публичный метод для фильтрации из MainForm
+        // Метод, гарантирующий фиксированный размер карточки
+        private void EnsureCardSize(MovieCard card)
+        {
+            card.Size = new Size(280, 420);
+            card.MinimumSize = new Size(280, 420);
+            card.MaximumSize = new Size(280, 420);
+            card.PerformLayout();
+        }
+
         public void FilterMovies(string query)
         {
-            // Сохраняем текущую ширину, чтобы не сжималась
-            int savedWidth = moviesFlowLayoutPanel.Width;
-
             moviesFlowLayoutPanel.SuspendLayout();
             moviesFlowLayoutPanel.Controls.Clear();
 
-            if (string.IsNullOrWhiteSpace(query))
+            if (!DatabaseHelper.TestConnection())
             {
-                // Показываем все фильмы
-                if (DatabaseHelper.TestConnection())
-                    LoadMoviesFromDatabase();
-                else
-                    LoadTestMovies();
-            }
-            else
-            {
-                // Реальный поиск по БД, если есть соединение
-                if (DatabaseHelper.TestConnection())
-                {
-                    // Используем запрос к БД с фильтрацией
-                    var filteredMovies = DatabaseHelper.SearchMoviesByTitle(query);
-                    foreach (var movie in filteredMovies)
-                    {
-                        var movieCard = new MovieCard(movie);
-                        movieCard.MovieClicked += (s, m) => ShowMovieDetail(m);
-                        moviesFlowLayoutPanel.Controls.Add(movieCard);
-                    }
-                }
-                else
-                {
-                    // Тестовые фильмы
-                    for (int i = 1; i <= 15; i++)
-                    {
-                        string title = $"Фильм {i}";
-                        if (title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
-                        {
-                            var movie = new Movie { Title = title, Genre = "Жанр", Year = 2020, AvailableCopies = 5 };
-                            var movieCard = new MovieCard(movie);
-                            movieCard.MovieClicked += (s, m) => ShowMovieDetail(m);
-                            moviesFlowLayoutPanel.Controls.Add(movieCard);
-                        }
-                    }
-                }
+                MessageBox.Show("База данных недоступна. Поиск невозможен.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                moviesFlowLayoutPanel.ResumeLayout(false);
+                moviesFlowLayoutPanel.PerformLayout();
+                return;
             }
 
-            // Восстанавливаем ширину после добавления элементов
-            moviesFlowLayoutPanel.Width = savedWidth;
-            moviesFlowLayoutPanel.ResumeLayout();
+            var allMovies = DatabaseHelper.GetAllMovies();
+            var moviesToShow = new List<Movie>();
+
+            if (string.IsNullOrWhiteSpace(query))
+                moviesToShow = allMovies;
+            else
+                moviesToShow = allMovies.FindAll(m => m.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0);
+
+            foreach (var movie in moviesToShow)
+            {
+                var movieCard = new MovieCard(movie);
+                movieCard.MovieClicked += (s, m) => ShowMovieDetail(m);
+                EnsureCardSize(movieCard);
+                moviesFlowLayoutPanel.Controls.Add(movieCard);
+            }
+
+            moviesFlowLayoutPanel.ResumeLayout(true);
             moviesFlowLayoutPanel.PerformLayout();
+
+            // Принудительная перерисовка
+            moviesFlowLayoutPanel.Refresh();
+            this.Refresh();
         }
 
         public void RefreshCatalog()
