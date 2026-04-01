@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
 namespace ReelRent
@@ -7,15 +6,16 @@ namespace ReelRent
     partial class LoginForm
     {
         private System.ComponentModel.IContainer components = null;
+        private Panel borderPanel;
+        private Panel contentPanel;
+        private Label lblTitle;
         private Label lblLogin;
         private TextBox txtLogin;
         private Label lblPassword;
         private TextBox txtPassword;
+        private LinkLabel linkRegister;
         private Button btnLogin;
-        private Button btnCancel;
-        private Label lblTitle;
-        private Panel titlePanel;
-        private Panel contentPanel;
+        private Button btnClose;
 
         protected override void Dispose(bool disposing)
         {
@@ -26,111 +26,155 @@ namespace ReelRent
 
         private void InitializeComponent()
         {
+            this.borderPanel = new Panel();
+            this.contentPanel = new Panel();
+            this.lblTitle = new Label();
+            this.lblLogin = new Label();
+            this.txtLogin = new TextBox();
+            this.lblPassword = new Label();
+            this.txtPassword = new TextBox();
+            this.linkRegister = new LinkLabel();
+            this.btnLogin = new Button();
+            this.btnClose = new Button();
+
             this.SuspendLayout();
 
-            // ========== Форма ==========
-            this.ClientSize = new Size(450, 380);
-            this.Text = "Вход в личный кабинет";
+            // LoginForm
+            this.ClientSize = new Size(400, 450);
+            this.FormBorderStyle = FormBorderStyle.None;
             this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
             this.BackColor = Theme.BackColor;
-            this.ForeColor = Theme.ForeColor;
 
-            // ========== Верхняя панель (заголовок) ==========
-            this.titlePanel = new Panel();
-            this.titlePanel.Dock = DockStyle.Top;
-            this.titlePanel.Height = 70;
-            this.titlePanel.BackColor = Theme.PanelColor;
+            // borderPanel – белая рамка по краям
+            this.borderPanel.Dock = DockStyle.Fill;
+            this.borderPanel.BackColor = Color.White;
+            this.borderPanel.Padding = new Padding(1); // толщина рамки
 
-            this.lblTitle = new Label();
+            // contentPanel – внутренний контент с тёмным фоном
+            this.contentPanel.Dock = DockStyle.Fill;
+            this.contentPanel.BackColor = Theme.BackColor;
+            this.contentPanel.Padding = new Padding(20);
+
+            // lblTitle
             this.lblTitle.Text = "Авторизация";
-            this.lblTitle.Font = new Font("Segoe UI", 20, FontStyle.Bold);
+            this.lblTitle.Font = new Font("Segoe UI", 24, FontStyle.Bold);
             this.lblTitle.ForeColor = Theme.AccentForeColor;
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Location = new Point(20, 15);
-            this.titlePanel.Controls.Add(this.lblTitle);
 
-            // ========== Контентная панель ==========
-            this.contentPanel = new Panel();
-            this.contentPanel.Dock = DockStyle.Fill;
-            this.contentPanel.BackColor = Color.Transparent;
-            this.contentPanel.Padding = new Padding(30, 20, 30, 20);
-
-            // Логин
-            this.lblLogin = new Label();
+            // lblLogin
             this.lblLogin.Text = "Логин:";
-            this.lblLogin.Font = new Font("Segoe UI", 11);
+            this.lblLogin.Font = new Font("Segoe UI", 12);
+            this.lblLogin.ForeColor = Theme.AccentForeColor;
             this.lblLogin.AutoSize = true;
-            this.lblLogin.Location = new Point(0, 10);
-            this.lblLogin.ForeColor = Theme.ForeColor;
 
-            this.txtLogin = new TextBox();
-            this.txtLogin.Font = new Font("Segoe UI", 11);
-            this.txtLogin.Width = 380;
+            // txtLogin
+            this.txtLogin.Font = new Font("Segoe UI", 12);
+            this.txtLogin.Size = new Size(280, 30);
             this.txtLogin.BackColor = Theme.PanelColor;
             this.txtLogin.ForeColor = Theme.ForeColor;
             this.txtLogin.BorderStyle = BorderStyle.FixedSingle;
-            this.txtLogin.Location = new Point(0, 35);
 
-            // Пароль
-            this.lblPassword = new Label();
+            // lblPassword
             this.lblPassword.Text = "Пароль:";
-            this.lblPassword.Font = new Font("Segoe UI", 11);
+            this.lblPassword.Font = new Font("Segoe UI", 12);
+            this.lblPassword.ForeColor = Theme.AccentForeColor;
             this.lblPassword.AutoSize = true;
-            this.lblPassword.Location = new Point(0, 75);
-            this.lblPassword.ForeColor = Theme.ForeColor;
 
-            this.txtPassword = new TextBox();
-            this.txtPassword.Font = new Font("Segoe UI", 11);
-            this.txtPassword.Width = 380;
+            // txtPassword
+            this.txtPassword.Font = new Font("Segoe UI", 12);
+            this.txtPassword.Size = new Size(280, 30);
             this.txtPassword.BackColor = Theme.PanelColor;
             this.txtPassword.ForeColor = Theme.ForeColor;
             this.txtPassword.BorderStyle = BorderStyle.FixedSingle;
             this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Location = new Point(0, 100);
 
-            // Кнопки
-            this.btnLogin = new Button();
+            // linkRegister
+            this.linkRegister.Text = "Нет аккаунта? Зарегистрироваться";
+            this.linkRegister.LinkColor = Theme.AccentForeColor;
+            this.linkRegister.ActiveLinkColor = Theme.ButtonHoverColor;
+            this.linkRegister.Font = new Font("Segoe UI", 10);
+            this.linkRegister.AutoSize = true;
+            this.linkRegister.Cursor = Cursors.Hand;
+            this.linkRegister.LinkClicked += LinkRegister_LinkClicked;
+
+            // btnLogin
             this.btnLogin.Text = "Войти";
-            this.btnLogin.Font = new Font("Segoe UI", 11, FontStyle.Bold);
             this.btnLogin.FlatStyle = FlatStyle.Flat;
             this.btnLogin.BackColor = Theme.ButtonHoverColor;
             this.btnLogin.ForeColor = Theme.ForeColor;
             this.btnLogin.Size = new Size(120, 40);
+            this.btnLogin.Font = new Font("Segoe UI", 12, FontStyle.Bold);
             this.btnLogin.Cursor = Cursors.Hand;
             this.btnLogin.FlatAppearance.BorderSize = 0;
-            this.btnLogin.Location = new Point(0, 150);
+            this.btnLogin.Click += BtnLogin_Click;
 
-            this.btnCancel = new Button();
-            this.btnCancel.Text = "Отмена";
-            this.btnCancel.Font = new Font("Segoe UI", 11);
-            this.btnCancel.FlatStyle = FlatStyle.Flat;
-            this.btnCancel.BackColor = Theme.PanelColor;
-            this.btnCancel.ForeColor = Theme.ForeColor;
-            this.btnCancel.Size = new Size(120, 40);
-            this.btnCancel.Cursor = Cursors.Hand;
-            this.btnCancel.FlatAppearance.BorderSize = 0;
-            this.btnCancel.Location = new Point(130, 150);
-
-            // Размещение кнопок рядом
-            this.btnLogin.Location = new Point(0, 150);
-            this.btnCancel.Location = new Point(130, 150);
+            // btnClose – крестик
+            this.btnClose.Text = "✖";
+            this.btnClose.FlatStyle = FlatStyle.Flat;
+            this.btnClose.FlatAppearance.BorderSize = 0;
+            this.btnClose.BackColor = Color.Transparent;
+            this.btnClose.ForeColor = Theme.ForeColor;
+            this.btnClose.Font = new Font("Segoe UI", 12, FontStyle.Bold);
+            this.btnClose.Size = new Size(40, 40);
+            this.btnClose.Cursor = Cursors.Hand;
+            this.btnClose.Click += BtnClose_Click;
+            this.btnClose.MouseEnter += (s, e) => btnClose.BackColor = Theme.ButtonHoverColor;
+            this.btnClose.MouseLeave += (s, e) => btnClose.BackColor = Color.Transparent;
 
             // Добавляем элементы в contentPanel
+            this.contentPanel.Controls.Add(this.lblTitle);
             this.contentPanel.Controls.Add(this.lblLogin);
             this.contentPanel.Controls.Add(this.txtLogin);
             this.contentPanel.Controls.Add(this.lblPassword);
             this.contentPanel.Controls.Add(this.txtPassword);
+            this.contentPanel.Controls.Add(this.linkRegister);
             this.contentPanel.Controls.Add(this.btnLogin);
-            this.contentPanel.Controls.Add(this.btnCancel);
+            this.contentPanel.Controls.Add(this.btnClose);
 
-            // Добавляем панели на форму
-            this.Controls.Add(this.contentPanel);
-            this.Controls.Add(this.titlePanel);
+            // Добавляем панели
+            this.borderPanel.Controls.Add(this.contentPanel);
+            this.Controls.Add(this.borderPanel);
+
+            // Центрирование
+            this.Resize += (s, e) => CenterControls();
+            CenterControls();
 
             this.ResumeLayout(false);
             this.PerformLayout();
+        }
+
+        private void CenterControls()
+        {
+            if (contentPanel == null) return;
+
+            int centerX = contentPanel.ClientSize.Width / 2;
+            int currentY = 60;
+
+            // Заголовок
+            lblTitle.Location = new Point(centerX - lblTitle.Width / 2, currentY);
+            currentY += lblTitle.Height + 40;
+
+            // Логин (надпись слева, поле под ней)
+            lblLogin.Location = new Point(centerX - txtLogin.Width / 2, currentY);
+            currentY += lblLogin.Height + 5;
+            txtLogin.Location = new Point(centerX - txtLogin.Width / 2, currentY);
+            currentY += txtLogin.Height + 20;
+
+            // Пароль
+            lblPassword.Location = new Point(centerX - txtPassword.Width / 2, currentY);
+            currentY += lblPassword.Height + 5;
+            txtPassword.Location = new Point(centerX - txtPassword.Width / 2, currentY);
+            currentY += txtPassword.Height + 25;
+
+            // Ссылка на регистрацию (теперь над кнопкой)
+            linkRegister.Location = new Point(centerX - linkRegister.Width / 2, currentY);
+            currentY += linkRegister.Height + 15;
+
+            // Кнопка входа
+            btnLogin.Location = new Point(centerX - btnLogin.Width / 2, currentY);
+
+            // Крестик – правый верхний угол
+            btnClose.Location = new Point(contentPanel.ClientSize.Width - btnClose.Width - 5, 5);
         }
     }
 }

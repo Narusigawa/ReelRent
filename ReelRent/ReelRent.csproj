@@ -133,6 +133,12 @@
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="ManageMoviesControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ManageMoviesControl.Designer.cs">
+      <DependentUpon>ManageMoviesControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="MovieCard.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -144,6 +150,12 @@
     </Compile>
     <Compile Include="MovieDetailForm.Designer.cs">
       <DependentUpon>MovieDetailForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MovieEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MovieEditForm.Designer.cs">
+      <DependentUpon>MovieEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="ProfileControl.cs">
       <SubType>UserControl</SubType>
@@ -159,6 +171,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegisterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RegisterForm.Designer.cs">
+      <DependentUpon>RegisterForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Session.cs" />
     <Compile Include="Theme.cs" />
     <EmbeddedResource Include="MainForm.resx">

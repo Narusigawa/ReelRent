@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ReelRent
@@ -15,9 +8,8 @@ namespace ReelRent
         public LoginForm()
         {
             InitializeComponent();
-            this.btnLogin.Click += BtnLogin_Click;
-            this.btnCancel.Click += (s, e) => this.DialogResult = DialogResult.Cancel;
         }
+
         private void BtnLogin_Click(object sender, EventArgs e)
         {
             string username = txtLogin.Text.Trim();
@@ -40,6 +32,23 @@ namespace ReelRent
             {
                 MessageBox.Show("Неверный логин или пароль, или пользователь заблокирован.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void LinkRegister_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            using (var registerForm = new RegisterForm())
+            {
+                if (registerForm.ShowDialog() == DialogResult.OK)
+                {
+                    MessageBox.Show("Регистрация успешна! Теперь войдите.", "Успех", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+        }
+
+        private void BtnClose_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
         }
     }
 }

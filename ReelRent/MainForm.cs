@@ -62,6 +62,7 @@ namespace ReelRent
         private void ShowCatalog()
         {
             ShowControl(catalogControl);
+            catalogControl.RefreshCatalog(); // Обновляем содержимое каталога
         }
 
         private void ShowControl(UserControl control)

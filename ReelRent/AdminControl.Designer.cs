@@ -9,10 +9,10 @@ namespace ReelRent
         private System.ComponentModel.IContainer components = null;
         private Button btnBack;
         private Label lblTitle;
-        private Button btnAddMovie;
+        private Button btnManageMovies;
         private Button btnManageUsers;
         private Button btnManageBanners;
-        private Panel contentPanel;
+        private Panel panelContainer; // контейнер для переключения содержимого
 
         protected override void Dispose(bool disposing)
         {
@@ -23,54 +23,56 @@ namespace ReelRent
 
         private void InitializeComponent()
         {
-            this.contentPanel = new Panel();
             this.btnBack = new Button();
             this.lblTitle = new Label();
-            this.btnAddMovie = new Button();
+            this.btnManageMovies = new Button();
             this.btnManageUsers = new Button();
             this.btnManageBanners = new Button();
+            this.panelContainer = new Panel();
             this.SuspendLayout();
 
+            // AdminControl
             this.BackColor = Theme.BackColor;
             this.AutoScroll = true;
             this.Padding = new Padding(70, 0, 0, 0);
 
-            this.contentPanel.BackColor = Color.Transparent;
-            this.contentPanel.AutoSize = true;
-            this.contentPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            this.contentPanel.Location = new Point(20, 20);
-            this.contentPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            // panelContainer – заполняет всю область
+            this.panelContainer.Dock = DockStyle.Fill;
+            this.panelContainer.BackColor = Color.Transparent;
 
+            // btnBack – слева с отступом
             this.btnBack.Text = "← Назад";
             this.btnBack.FlatStyle = FlatStyle.Flat;
             this.btnBack.BackColor = Theme.PanelColor;
             this.btnBack.ForeColor = Theme.ForeColor;
-            this.btnBack.Size = new Size(100, 40);
-            this.btnBack.Location = new Point(0, 0);
+            this.btnBack.Size = new Size(120, 50);
+            this.btnBack.Location = new Point(200, 20);
             this.btnBack.Cursor = Cursors.Hand;
             this.btnBack.Click += btnBack_Click;
 
+            // lblTitle – заголовок
             this.lblTitle.Text = "Панель администратора";
             this.lblTitle.Font = new Font("Segoe UI", 28, FontStyle.Bold);
             this.lblTitle.ForeColor = Theme.AccentForeColor;
             this.lblTitle.AutoSize = true;
-            this.lblTitle.Location = new Point(0, 50);
+            this.lblTitle.Location = new Point(20, 100);
 
-            this.btnAddMovie.Text = "Добавить фильм";
-            this.btnAddMovie.FlatStyle = FlatStyle.Flat;
-            this.btnAddMovie.BackColor = Theme.PanelColor;
-            this.btnAddMovie.ForeColor = Theme.ForeColor;
-            this.btnAddMovie.Size = new Size(250, 50);
-            this.btnAddMovie.Location = new Point(0, 120);
-            this.btnAddMovie.Cursor = Cursors.Hand;
-            this.btnAddMovie.Click += btnAddMovie_Click;
+            // Кнопки управления
+            this.btnManageMovies.Text = "Управление фильмами";
+            this.btnManageMovies.FlatStyle = FlatStyle.Flat;
+            this.btnManageMovies.BackColor = Theme.PanelColor;
+            this.btnManageMovies.ForeColor = Theme.ForeColor;
+            this.btnManageMovies.Size = new Size(300, 70);
+            this.btnManageMovies.Font = new Font("Segoe UI", 14, FontStyle.Bold);
+            this.btnManageMovies.Cursor = Cursors.Hand;
+            this.btnManageMovies.Click += btnManageMovies_Click;
 
             this.btnManageUsers.Text = "Управление пользователями";
             this.btnManageUsers.FlatStyle = FlatStyle.Flat;
             this.btnManageUsers.BackColor = Theme.PanelColor;
             this.btnManageUsers.ForeColor = Theme.ForeColor;
-            this.btnManageUsers.Size = new Size(250, 50);
-            this.btnManageUsers.Location = new Point(0, 190);
+            this.btnManageUsers.Size = new Size(300, 70);
+            this.btnManageUsers.Font = new Font("Segoe UI", 14, FontStyle.Bold);
             this.btnManageUsers.Cursor = Cursors.Hand;
             this.btnManageUsers.Click += btnManageUsers_Click;
 
@@ -78,26 +80,44 @@ namespace ReelRent
             this.btnManageBanners.FlatStyle = FlatStyle.Flat;
             this.btnManageBanners.BackColor = Theme.PanelColor;
             this.btnManageBanners.ForeColor = Theme.ForeColor;
-            this.btnManageBanners.Size = new Size(250, 50);
-            this.btnManageBanners.Location = new Point(0, 260);
+            this.btnManageBanners.Size = new Size(300, 70);
+            this.btnManageBanners.Font = new Font("Segoe UI", 14, FontStyle.Bold);
             this.btnManageBanners.Cursor = Cursors.Hand;
             this.btnManageBanners.Click += btnManageBanners_Click;
 
-            this.contentPanel.Controls.Add(this.btnBack);
-            this.contentPanel.Controls.Add(this.lblTitle);
-            this.contentPanel.Controls.Add(this.btnAddMovie);
-            this.contentPanel.Controls.Add(this.btnManageUsers);
-            this.contentPanel.Controls.Add(this.btnManageBanners);
+            // Добавляем панель-контейнер
+            this.Controls.Add(this.panelContainer);
+            this.panelContainer.Controls.Add(this.btnBack);
+            this.panelContainer.Controls.Add(this.lblTitle);
+            this.panelContainer.Controls.Add(this.btnManageMovies);
+            this.panelContainer.Controls.Add(this.btnManageBanners);
+            this.panelContainer.Controls.Add(this.btnManageUsers);
 
-            this.Controls.Add(this.contentPanel);
-
-            this.Resize += (s, e) =>
-            {
-                this.contentPanel.Left = (this.ClientSize.Width - this.contentPanel.Width) / 2;
-            };
+            // Подписываемся на изменение размера для центрирования
+            this.Resize += AdminControl_Resize;
+            this.Load += (s, e) => AdminControl_Resize(null, null);
 
             this.ResumeLayout(false);
             this.PerformLayout();
+        }
+
+        private void AdminControl_Resize(object sender, EventArgs e)
+        {
+            // Центрируем заголовок по горизонтали
+            int centerX = (this.ClientSize.Width - lblTitle.Width) / 2;
+            lblTitle.Location = new Point(centerX, 100);
+
+            // Центрируем кнопки вертикально и горизонтально
+            int buttonSpacing = 20;
+            int totalHeight = btnManageMovies.Height + btnManageBanners.Height + btnManageUsers.Height + buttonSpacing * 2;
+            int startY = (this.ClientSize.Height - totalHeight) / 2;
+            if (startY < lblTitle.Bottom + 40) startY = lblTitle.Bottom + 40;
+
+            int btnCenterX = (this.ClientSize.Width - btnManageMovies.Width) / 2;
+
+            btnManageMovies.Location = new Point(btnCenterX, startY);
+            btnManageBanners.Location = new Point(btnCenterX, btnManageMovies.Bottom + buttonSpacing);
+            btnManageUsers.Location = new Point(btnCenterX, btnManageBanners.Bottom + buttonSpacing);
         }
     }
 }

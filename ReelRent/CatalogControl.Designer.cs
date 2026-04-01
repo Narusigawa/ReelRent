@@ -47,17 +47,33 @@ namespace ReelRent
             this.flowLayoutPanel.BackColor = Theme.BackColor;
             this.flowLayoutPanel.Padding = new System.Windows.Forms.Padding(10, 10, 10, 10);
 
-            // labelNewReleases
+            Panel newReleasesPanel = new Panel();
+            newReleasesPanel.AutoSize = false;
+            newReleasesPanel.Height = 60;
+            newReleasesPanel.Margin = new Padding(0, 0, 0, 20);
+            newReleasesPanel.BackColor = Color.Transparent;
+            this.flowLayoutPanel.Resize += (s, e) =>
+            {
+                newReleasesPanel.Width = this.flowLayoutPanel.ClientSize.Width - 20;
+            };
+            newReleasesPanel.Width = this.flowLayoutPanel.ClientSize.Width - 20;
+
             this.labelNewReleases.Text = "-- Новинки этой недели --";
             this.labelNewReleases.Font = new Font("Segoe UI", 22, FontStyle.Bold);
             this.labelNewReleases.ForeColor = Theme.AccentForeColor;
             this.labelNewReleases.AutoSize = true;
-            this.labelNewReleases.Margin = new Padding(643, 0, 0, 20);
+            this.labelNewReleases.TextAlign = ContentAlignment.MiddleCenter;
+            this.labelNewReleases.Location = new Point((newReleasesPanel.Width - this.labelNewReleases.Width) / 2, (newReleasesPanel.Height - this.labelNewReleases.Height) / 2);
+            newReleasesPanel.Controls.Add(this.labelNewReleases);
+            newReleasesPanel.Resize += (s, e) =>
+            {
+                this.labelNewReleases.Location = new Point((newReleasesPanel.Width - this.labelNewReleases.Width) / 2, (newReleasesPanel.Height - this.labelNewReleases.Height) / 2);
+            };
 
-            // bannerPanel
+            // bannerPanel (без изменений)
             this.bannerPanel.BackColor = Theme.BackColor;
             this.bannerPanel.Height = 550;
-            this.bannerPanel.Margin = new Padding(30, 0, 0, 0);
+            this.bannerPanel.Margin = new Padding(50, 0, 0, 0);
             this.bannerPanel.Resize += (s, e) => AdjustBannerSize();
 
             // bannerPicture
@@ -101,12 +117,28 @@ namespace ReelRent
             this.indicatorPanel.Height = 30;
             this.bannerPanel.Controls.Add(this.indicatorPanel);
 
-            // labelCatalogTitle
+            Panel catalogTitlePanel = new Panel();
+            catalogTitlePanel.AutoSize = false;
+            catalogTitlePanel.Height = 60;
+            catalogTitlePanel.Margin = new Padding(0, 10, 0, 0);
+            catalogTitlePanel.BackColor = Color.Transparent;
+            this.flowLayoutPanel.Resize += (s, e) =>
+            {
+                catalogTitlePanel.Width = this.flowLayoutPanel.ClientSize.Width - 20;
+            };
+            catalogTitlePanel.Width = this.flowLayoutPanel.ClientSize.Width - 20;
+
             this.labelCatalogTitle.Text = "-- Каталог фильмов --";
             this.labelCatalogTitle.Font = new Font("Segoe UI", 18, FontStyle.Bold);
             this.labelCatalogTitle.ForeColor = Theme.AccentForeColor;
             this.labelCatalogTitle.AutoSize = true;
             this.labelCatalogTitle.TextAlign = ContentAlignment.MiddleCenter;
+            this.labelCatalogTitle.Location = new Point((catalogTitlePanel.Width - this.labelCatalogTitle.Width) / 2, (catalogTitlePanel.Height - this.labelCatalogTitle.Height) / 2);
+            catalogTitlePanel.Controls.Add(this.labelCatalogTitle);
+            catalogTitlePanel.Resize += (s, e) =>
+            {
+                this.labelCatalogTitle.Location = new Point((catalogTitlePanel.Width - this.labelCatalogTitle.Width) / 2, (catalogTitlePanel.Height - this.labelCatalogTitle.Height) / 2);
+            };
 
             // moviesFlowLayoutPanel
             this.moviesFlowLayoutPanel.AutoSize = true;
@@ -114,24 +146,18 @@ namespace ReelRent
             this.moviesFlowLayoutPanel.WrapContents = true;
             this.moviesFlowLayoutPanel.BackColor = Color.Transparent;
             this.moviesFlowLayoutPanel.Padding = new Padding(0);
-            this.moviesFlowLayoutPanel.Margin = new Padding(0, 20, 0, 0);
+            this.moviesFlowLayoutPanel.Margin = new Padding(20, 20, 0, 0);
 
             // Добавление элементов в flowLayoutPanel
-            this.flowLayoutPanel.Controls.Add(this.labelNewReleases);
+            this.flowLayoutPanel.Controls.Add(newReleasesPanel);
             this.flowLayoutPanel.Controls.Add(this.bannerPanel);
-            Panel catalogTitlePanel = new Panel();
-            catalogTitlePanel.AutoSize = true;
-            catalogTitlePanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            catalogTitlePanel.BackColor = Color.Transparent;
-            catalogTitlePanel.Margin = new Padding(720, 10, 0, 0);
-            catalogTitlePanel.Controls.Add(this.labelCatalogTitle);
             this.flowLayoutPanel.Controls.Add(catalogTitlePanel);
             this.flowLayoutPanel.Controls.Add(this.moviesFlowLayoutPanel);
 
             // CatalogControl
             this.Controls.Add(this.flowLayoutPanel);
             this.BackColor = Theme.BackColor;
-            this.Padding = new Padding(0); // убираем отступы
+            this.Padding = new Padding(0);
             this.Resize += (s, e) => AdjustBannerSize();
 
             this.ResumeLayout(false);
