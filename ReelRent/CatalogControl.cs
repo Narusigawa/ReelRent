@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using ReelRent.Properties;
 
 namespace ReelRent
 {
     public partial class CatalogControl : UserControl
     {
-        private List<Image> banners = new List<Image>();
+        private List<Banner> banners = new List<Banner>();
         private int currentBannerIndex = 0;
 
         public CatalogControl()
         {
             InitializeComponent();
-            LoadBanners();
+            LoadBannersFromDatabase();
             bannerTimer.Interval = 10000;
             bannerTimer.Tick += (s, e) => NextBanner();
             bannerTimer.Start();
@@ -26,41 +25,64 @@ namespace ReelRent
                 LoadTestMovies();
         }
 
-        private void LoadBanners()
+        private void LoadBannersFromDatabase()
         {
-            banners.Clear();
-            try
+            banners = DatabaseHelper.GetActiveBanners();
+            if (banners.Count == 0)
             {
-                banners.Add(Resources.banner1);
-                banners.Add(Resources.banner2);
-                banners.Add(Resources.banner3);
+                CreatePlaceholderImage("Нет активных баннеров");
+                return;
             }
-            catch
+            LoadBannerImage(banners[0]);
+            currentBannerIndex = 0;
+            UpdateIndicators();
+        }
+
+        private void LoadBannerImage(Banner banner)
+        {
+            string bannersPath = Path.Combine(Application.StartupPath, "Images", "Banners");
+            string fullPath = Path.Combine(bannersPath, banner.ImageFileName);
+            if (File.Exists(fullPath))
             {
-                for (int i = 1; i <= 3; i++)
+                try
                 {
-                    Bitmap bmp = new Bitmap(800, 300);
-                    using (Graphics g = Graphics.FromImage(bmp))
+                    if (bannerPicture.Image != null)
+                        bannerPicture.Image.Dispose();
+                    using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
                     {
-                        g.Clear(Color.FromArgb(80, 80, 80));
-                        g.DrawString($"Баннер {i}", new Font("Segoe UI", 20), Brushes.White, new PointF(20, 20));
+                        var img = Image.FromStream(fs);
+                        bannerPicture.Image = new Bitmap(img);
+                        img.Dispose();
                     }
-                    banners.Add(bmp);
+                }
+                catch
+                {
+                    CreatePlaceholderImage("Ошибка загрузки");
                 }
             }
-
-            if (banners.Count > 0)
+            else
             {
-                bannerPicture.Image = banners[0];
-                currentBannerIndex = 0;
-                UpdateIndicators();
+                CreatePlaceholderImage("Нет изображения");
             }
+        }
+
+        private void CreatePlaceholderImage(string text)
+        {
+            Bitmap bmp = new Bitmap(800, 300);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.FromArgb(80, 80, 80));
+                g.DrawString(text, new Font("Segoe UI", 20), Brushes.White, new PointF(20, 20));
+            }
+            if (bannerPicture.Image != null) bannerPicture.Image.Dispose();
+            bannerPicture.Image = bmp;
         }
 
         private void UpdateIndicators()
         {
             indicatorPanel.Controls.Clear();
             int count = banners.Count;
+            if (count == 0) return;
             int dotSize = 10;
             int margin = 5;
             int spacing = dotSize + 2 * margin;
@@ -79,7 +101,8 @@ namespace ReelRent
                 dot.BackColor = i == currentBannerIndex ? Theme.ButtonHoverColor : Color.FromArgb(100, 100, 100);
                 dot.Size = new Size(dotSize, dotSize);
                 dot.Margin = new Padding(margin);
-                dot.Click += (s, e) => SetBannerIndex(i);
+                int index = i;
+                dot.Click += (s, e) => SetBannerIndex(index);
                 dot.Cursor = Cursors.Hand;
                 dot.Location = new Point(i * spacing, 0);
                 indicatorPanel.Controls.Add(dot);
@@ -92,7 +115,7 @@ namespace ReelRent
             if (index < 0) index = banners.Count - 1;
             if (index >= banners.Count) index = 0;
             currentBannerIndex = index;
-            bannerPicture.Image = banners[currentBannerIndex];
+            LoadBannerImage(banners[currentBannerIndex]);
             UpdateIndicators();
             bannerTimer.Stop();
             bannerTimer.Start();
@@ -101,6 +124,7 @@ namespace ReelRent
         private void NextBanner() => SetBannerIndex(currentBannerIndex + 1);
         private void PrevBanner() => SetBannerIndex(currentBannerIndex - 1);
 
+        // ========== Методы для фильмов ==========
         private void LoadTestMovies()
         {
             moviesFlowLayoutPanel.SuspendLayout();
@@ -147,12 +171,25 @@ namespace ReelRent
 
         private void ShowMovieDetail(Movie movie)
         {
-            var detailForm = new MovieDetailForm(movie.Title, movie.Genre, movie.Year.ToString(),
-                movie.Director, movie.Actors, movie.Description, movie.AvailableCopies);
+            var detailForm = new MovieDetailForm(
+                movie.Id,
+                movie.Title,
+                movie.Genre,
+                movie.Year.ToString(),
+                movie.Director,
+                movie.Actors,
+                movie.Description,
+                movie.AvailableCopies,
+                movie.RentalPrice,
+                movie.Duration,
+                movie.AgeRating,
+                movie.PosterFileName,
+                movie.MediaFormat,
+                movie.Language
+            );
             detailForm.ShowDialog();
         }
 
-        // Метод, гарантирующий фиксированный размер карточки
         private void EnsureCardSize(MovieCard card)
         {
             card.Size = new Size(280, 420);
@@ -192,18 +229,22 @@ namespace ReelRent
 
             moviesFlowLayoutPanel.ResumeLayout(true);
             moviesFlowLayoutPanel.PerformLayout();
-
-            // Принудительная перерисовка
             moviesFlowLayoutPanel.Refresh();
             this.Refresh();
         }
 
         public void RefreshCatalog()
         {
+            RefreshBanners();
             if (DatabaseHelper.TestConnection())
                 LoadMoviesFromDatabase();
             else
                 LoadTestMovies();
+        }
+
+        public void RefreshBanners()
+        {
+            LoadBannersFromDatabase();
         }
     }
 }

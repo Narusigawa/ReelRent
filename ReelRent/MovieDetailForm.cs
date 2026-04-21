@@ -1,62 +1,90 @@
 ﻿using System;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 
 namespace ReelRent
 {
     public partial class MovieDetailForm : Form
     {
-        public MovieDetailForm(string title, string genre, string year, string director, string actors, string description, int copiesAvailable)
+        private int movieId; // добавлено поле для хранения ID фильма
+
+        public MovieDetailForm(int movieId, string title, string genre, string year, string director,
+                               string actors, string description, int copiesAvailable,
+                               decimal price, int duration, string ageRating, string posterFileName,
+                               string mediaFormat, string language)
         {
+            this.movieId = movieId; // сохраняем ID
             InitializeComponent();
-            this.Text = title;
-            this.StartPosition = FormStartPosition.CenterParent;
-            this.FormBorderStyle = FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.BackColor = Theme.BackColor;
-            this.ForeColor = Theme.ForeColor;
-
-            // Создаём элементы
-            Label lblTitle = new Label() { Text = title, Font = new Font("Segoe UI", 18, FontStyle.Bold), ForeColor = Theme.AccentForeColor, AutoSize = true };
-            Label lblGenre = new Label() { Text = $"Жанр: {genre}", AutoSize = true };
-            Label lblYear = new Label() { Text = $"Год: {year}", AutoSize = true };
-            Label lblDirector = new Label() { Text = $"Режиссёр: {director}", AutoSize = true };
-            Label lblActors = new Label() { Text = $"Актёры: {actors}", AutoSize = true };
-            Label lblDescription = new Label() { Text = $"Описание: {description}", AutoSize = true, MaximumSize = new Size(400, 0) };
-            Label lblCopies = new Label() { Text = $"Доступно копий: {copiesAvailable}", Font = new Font("Segoe UI", 8), ForeColor = Color.LightGray, AutoSize = true };
-
-            Button btnAddToCart = new Button() { Text = "Добавить в корзину", FlatStyle = FlatStyle.Flat, BackColor = Theme.ButtonHoverColor, ForeColor = Theme.ForeColor, Size = new Size(150, 40), Cursor = Cursors.Hand };
-            btnAddToCart.Click += (s, e) => MessageBox.Show("Фильм добавлен в корзину (заглушка)", "Корзина", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            Button btnClose = new Button() { Text = "Закрыть", FlatStyle = FlatStyle.Flat, BackColor = Theme.PanelColor, ForeColor = Theme.ForeColor, Size = new Size(100, 40), Cursor = Cursors.Hand };
-            btnClose.Click += (s, e) => this.Close();
-
-            // Размещение с помощью TableLayoutPanel
-            TableLayoutPanel table = new TableLayoutPanel() { Dock = DockStyle.Fill, ColumnCount = 1, RowCount = 9, Padding = new Padding(20), AutoSize = true };
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-            table.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-
-            table.Controls.Add(lblTitle, 0, 0);
-            table.Controls.Add(lblGenre, 0, 1);
-            table.Controls.Add(lblYear, 0, 2);
-            table.Controls.Add(lblDirector, 0, 3);
-            table.Controls.Add(lblActors, 0, 4);
-            table.Controls.Add(lblDescription, 0, 5);
-            table.Controls.Add(lblCopies, 0, 6);
-            table.Controls.Add(btnAddToCart, 0, 7);
-            table.Controls.Add(btnClose, 0, 8);
-
-            this.Controls.Add(table);
-            this.Size = new Size(500, 500);
+            LoadData(title, genre, year, director, actors, description,
+                     copiesAvailable, price, duration, ageRating, posterFileName,
+                     mediaFormat, language);
         }
 
-   
+        private void LoadData(string title, string genre, string year, string director,
+                              string actors, string description, int copiesAvailable,
+                              decimal price, int duration, string ageRating, string posterFileName,
+                              string mediaFormat, string language)
+        {
+            this.Text = title;
+            lblTitle.Text = title;
+            lblGenre.Text = $"Жанр: {genre ?? "—"}";
+            lblYear.Text = $"Год: {year}";
+            lblDirector.Text = $"Режиссёр: {director ?? "—"}";
+            lblActors.Text = $"В ролях: {actors ?? "—"}";
+            lblDuration.Text = duration > 0 ? $"Продолжительность: {duration} мин" : "Продолжительность: —";
+            lblAgeRating.Text = $"Возрастной рейтинг: {ageRating ?? "—"}";
+            lblMediaFormat.Text = $"Формат: {mediaFormat ?? "—"}";
+            lblLanguage.Text = $"Язык/субтитры: {language ?? "—"}";
+
+            lblDescription.Text = description ?? "—";
+            lblPrice.Text = $"{price:F2} руб/сутки";
+            lblCopies.Text = $"Доступно копий: {copiesAvailable}";
+
+            // Загрузка постера
+            if (!string.IsNullOrEmpty(posterFileName))
+            {
+                string postersPath = Path.Combine(Application.StartupPath, "Images", "Posters");
+                string fullPath = Path.Combine(postersPath, posterFileName);
+                if (File.Exists(fullPath))
+                {
+                    try
+                    {
+                        using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                        {
+                            var img = Image.FromStream(fs);
+                            picturePoster.Image = new Bitmap(img);
+                            img.Dispose();
+                        }
+                    }
+                    catch { picturePoster.Image = null; }
+                }
+            }
+
+            if (picturePoster.Image == null)
+            {
+                Bitmap bmp = new Bitmap(280, 370);
+                using (Graphics g = Graphics.FromImage(bmp))
+                {
+                    g.Clear(Color.FromArgb(60, 60, 60));
+                    g.DrawString("Нет постера", new Font("Segoe UI", 10), Brushes.White, new PointF(20, 110));
+                }
+                picturePoster.Image = bmp;
+            }
+        }
+
+        private void btnAddToCart_Click(object sender, EventArgs e)
+        {
+            if (!Session.IsAuthenticated)
+            {
+                MessageBox.Show("Для добавления в корзину необходимо войти в систему.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Добавляем фильм в корзину с количеством дней = 1
+            DatabaseHelper.AddToCart(Session.CurrentUser.Id, movieId, 1);
+            MessageBox.Show($"Фильм \"{lblTitle.Text}\" добавлен в корзину.", "Корзина", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.Close();
+        }
     }
 }

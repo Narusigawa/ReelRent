@@ -58,14 +58,13 @@ namespace ReelRent
             this.StartPosition = FormStartPosition.CenterParent;
             this.BackColor = Theme.BackColor;
             this.ForeColor = Theme.ForeColor;
-            this.Padding = new Padding(1); // для рамки
+            this.Padding = new Padding(1);
 
-            // mainPanel – фон формы, отступы для рамки
+            // mainPanel
             this.mainPanel.Dock = DockStyle.Fill;
             this.mainPanel.BackColor = Color.White;
-            this.mainPanel.Padding = new Padding(1); // внутренняя рамка (белая)
+            this.mainPanel.Padding = new Padding(1);
 
-            // Панель с содержимым (чтобы отделить от белой рамки)
             Panel contentPanel = new Panel();
             contentPanel.Dock = DockStyle.Fill;
             contentPanel.BackColor = Theme.BackColor;
@@ -77,7 +76,14 @@ namespace ReelRent
             this.lblTitle.ForeColor = Theme.AccentForeColor;
             this.lblTitle.AutoSize = true;
 
-            // Поля (стили общие)
+            // Поля с ограничением длины
+            this.txtUsername.MaxLength = 20;
+            this.txtPassword.MaxLength = 20;
+            this.txtConfirmPassword.MaxLength = 20;
+            this.txtPhone.MaxLength = 11;
+            this.txtFullName.MaxLength = 100;
+            this.txtEmail.MaxLength = 100;
+
             var fieldFont = new Font("Segoe UI", 12);
             var fieldSize = new Size(300, 30);
             foreach (var txt in new TextBox[] { txtUsername, txtPassword, txtConfirmPassword, txtFullName, txtEmail, txtPhone })
@@ -95,7 +101,6 @@ namespace ReelRent
                 lbl.ForeColor = Theme.ForeColor;
             }
 
-            // Тексты меток
             this.lblUsername.Text = "Логин *:";
             this.lblPassword.Text = "Пароль *:";
             this.lblConfirmPassword.Text = "Подтверждение пароля *:";
@@ -115,8 +120,9 @@ namespace ReelRent
             this.btnRegister.Font = new Font("Segoe UI", 12, FontStyle.Bold);
             this.btnRegister.Cursor = Cursors.Hand;
             this.btnRegister.FlatAppearance.BorderSize = 0;
+            this.btnRegister.Click += BtnRegister_Click; // <--- ЭТО ВАЖНО
 
-            // Кнопка "Назад" (левая верхняя)
+            // Кнопка "Назад"
             this.btnBack.Text = "← Назад";
             this.btnBack.FlatStyle = FlatStyle.Flat;
             this.btnBack.FlatAppearance.BorderSize = 0;
@@ -130,7 +136,7 @@ namespace ReelRent
             this.btnBack.MouseLeave += (s, e) => btnBack.BackColor = Color.Transparent;
             this.btnBack.Click += (s, e) => this.DialogResult = DialogResult.Cancel;
 
-            // Кнопка закрытия (правая верхняя)
+            // Кнопка закрытия
             this.btnClose.Text = "✖";
             this.btnClose.FlatStyle = FlatStyle.Flat;
             this.btnClose.FlatAppearance.BorderSize = 0;
@@ -143,7 +149,6 @@ namespace ReelRent
             this.btnClose.MouseLeave += (s, e) => btnClose.BackColor = Color.Transparent;
             this.btnClose.Click += (s, e) => this.DialogResult = DialogResult.Cancel;
 
-            // Добавление элементов в contentPanel
             contentPanel.Controls.Add(this.lblTitle);
             contentPanel.Controls.Add(this.lblUsername);
             contentPanel.Controls.Add(this.txtUsername);
@@ -164,12 +169,8 @@ namespace ReelRent
             this.mainPanel.Controls.Add(contentPanel);
             this.Controls.Add(this.mainPanel);
 
-            // Центрирование элементов (кроме кнопок в углах)
             this.Resize += (s, e) => CenterControls(contentPanel);
-
-            // Обновление позиции крестика при изменении размера окна
             this.Resize += (s, e) => btnClose.Location = new Point(contentPanel.ClientSize.Width - btnClose.Width - 10, 10);
-
             CenterControls(contentPanel);
 
             this.ResumeLayout(false);
@@ -181,12 +182,11 @@ namespace ReelRent
             if (contentPanel == null) return;
 
             int centerX = contentPanel.ClientSize.Width / 2;
-            int currentY = 30; // отступ сверху, чтобы не налезать на кнопку «Назад»
+            int currentY = 30;
 
             lblTitle.Location = new Point(centerX - lblTitle.Width / 2, currentY);
             currentY += lblTitle.Height + 25;
 
-            // Функция центрирования пары (метка, поле)
             void PlaceField(Label label, TextBox textBox)
             {
                 label.Location = new Point(centerX - textBox.Width / 2, currentY);
@@ -202,9 +202,8 @@ namespace ReelRent
             PlaceField(lblEmail, txtEmail);
             PlaceField(lblPhone, txtPhone);
 
-            // Увеличиваем отступ перед кнопкой
             currentY += 20;
             btnRegister.Location = new Point(centerX - btnRegister.Width / 2, currentY);
         }
     }
-}
+}   

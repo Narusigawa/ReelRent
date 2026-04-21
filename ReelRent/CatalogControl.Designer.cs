@@ -17,6 +17,7 @@ namespace ReelRent
         private System.Windows.Forms.Label labelNewReleases;
         private System.Windows.Forms.Label labelCatalogTitle;
 
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))

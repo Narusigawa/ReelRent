@@ -96,11 +96,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AboutControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AboutControl.Designer.cs">
+      <DependentUpon>AboutControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="AdminControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="AdminControl.Designer.cs">
       <DependentUpon>AdminControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BannerEditForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BannerEditForm.Designer.cs">
+      <DependentUpon>BannerEditForm.cs</DependentUpon>
     </Compile>
     <Compile Include="CartControl.cs">
       <SubType>UserControl</SubType>
@@ -108,19 +120,38 @@
     <Compile Include="CartControl.Designer.cs">
       <DependentUpon>CartControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="CartItemControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="CartItemControl.Designer.cs">
+      <DependentUpon>CartItemControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="CatalogControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="CatalogControl.Designer.cs">
       <DependentUpon>CatalogControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="CatalogForm.cs">
+    <Compile Include="CheckoutForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="CatalogForm.Designer.cs">
-      <DependentUpon>CatalogForm.cs</DependentUpon>
+    <Compile Include="CheckoutForm.Designer.cs">
+      <DependentUpon>CheckoutForm.cs</DependentUpon>
     </Compile>
     <Compile Include="DatabaseHelper.cs" />
+    <Compile Include="EditProfileForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditProfileForm.Designer.cs">
+      <DependentUpon>EditProfileForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FilterCriteria.cs" />
+    <Compile Include="FilterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FilterForm.Designer.cs">
+      <DependentUpon>FilterForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -132,6 +163,12 @@
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ManageBannersControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="ManageBannersControl.Designer.cs">
+      <DependentUpon>ManageBannersControl.cs</DependentUpon>
     </Compile>
     <Compile Include="ManageMoviesControl.cs">
       <SubType>UserControl</SubType>
@@ -157,25 +194,54 @@
     <Compile Include="MovieEditForm.Designer.cs">
       <DependentUpon>MovieEditForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="OrderDetailsForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OrderDetailsForm.Designer.cs">
+      <DependentUpon>OrderDetailsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OrdersListForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OrdersListForm.Designer.cs">
+      <DependentUpon>OrdersListForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PaymentCardForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="PaymentCardForm.Designer.cs">
+      <DependentUpon>PaymentCardForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="ProfileControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="ProfileControl.Designer.cs">
       <DependentUpon>ProfileControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="ProfileForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="ProfileForm.Designer.cs">
-      <DependentUpon>ProfileForm.cs</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="RegisterForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="RegisterForm.Designer.cs">
       <DependentUpon>RegisterForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ReorderBannersForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ReorderBannersForm.Designer.cs">
+      <DependentUpon>ReorderBannersForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SearchResultsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="SearchResultsControl.Designer.cs">
+      <DependentUpon>SearchResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Session.cs" />
     <Compile Include="Theme.cs" />
@@ -184,14 +250,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

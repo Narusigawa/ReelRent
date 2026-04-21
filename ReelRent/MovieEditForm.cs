@@ -27,6 +27,20 @@ namespace ReelRent
             txtYear.Text = _movie.Year.ToString();
             txtDirector.Text = _movie.Director;
             txtActors.Text = _movie.Actors;
+            txtDuration.Text = _movie.Duration > 0 ? _movie.Duration.ToString() : "";
+
+            // Установка выбранного значения в ComboBox
+            if (!string.IsNullOrEmpty(_movie.AgeRating))
+                cmbAgeRating.SelectedItem = _movie.AgeRating;
+            else
+                cmbAgeRating.SelectedIndex = -1;
+
+            if (!string.IsNullOrEmpty(_movie.MediaFormat))
+                cmbMediaFormat.SelectedItem = _movie.MediaFormat;
+            else
+                cmbMediaFormat.SelectedIndex = -1;
+
+            txtLanguage.Text = _movie.Language;
             txtDescription.Text = _movie.Description;
             txtTotalCopies.Text = _movie.TotalCopies.ToString();
             txtAvailableCopies.Text = _movie.AvailableCopies.ToString();
@@ -40,9 +54,14 @@ namespace ReelRent
                 {
                     try
                     {
-                        picturePoster.Image = Image.FromFile(fullPath);
+                        using (var fs = new FileStream(fullPath, FileMode.Open, FileAccess.Read))
+                        {
+                            var img = Image.FromStream(fs);
+                            picturePoster.Image = new Bitmap(img);
+                            img.Dispose();
+                        }
                     }
-                    catch { }
+                    catch { picturePoster.Image = null; }
                 }
             }
         }
@@ -58,7 +77,17 @@ namespace ReelRent
                     _posterPath = ofd.FileName;
                     try
                     {
-                        picturePoster.Image = Image.FromFile(_posterPath);
+                        if (picturePoster.Image != null)
+                        {
+                            picturePoster.Image.Dispose();
+                            picturePoster.Image = null;
+                        }
+                        using (var fs = new FileStream(_posterPath, FileMode.Open, FileAccess.Read))
+                        {
+                            var img = Image.FromStream(fs);
+                            picturePoster.Image = new Bitmap(img);
+                            img.Dispose();
+                        }
                     }
                     catch { }
                 }
@@ -94,17 +123,48 @@ namespace ReelRent
                 return;
             }
 
+            int duration = 0;
+            if (!string.IsNullOrWhiteSpace(txtDuration.Text) && !int.TryParse(txtDuration.Text, out duration))
+            {
+                MessageBox.Show("Длительность должна быть числом (в минутах).", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string ageRating = cmbAgeRating.SelectedItem?.ToString();
+            string mediaFormat = cmbMediaFormat.SelectedItem?.ToString();
+
             string posterFileName = _movie?.PosterFileName;
             if (_posterPath != null)
             {
-                // Копируем файл постера в папку приложения
                 string postersDir = Path.Combine(Application.StartupPath, "Images", "Posters");
                 if (!Directory.Exists(postersDir))
                     Directory.CreateDirectory(postersDir);
-                string newFileName = Guid.NewGuid().ToString() + Path.GetExtension(_posterPath);
-                string destPath = Path.Combine(postersDir, newFileName);
+
+                string originalFileName = Path.GetFileName(_posterPath);
+                string destPath = Path.Combine(postersDir, originalFileName);
+
+                if (_movie != null && !string.IsNullOrEmpty(_movie.PosterFileName) && _movie.PosterFileName != originalFileName)
+                {
+                    string oldPath = Path.Combine(postersDir, _movie.PosterFileName);
+                    if (File.Exists(oldPath))
+                        File.Delete(oldPath);
+                }
+
+                if (picturePoster.Image != null)
+                {
+                    picturePoster.Image.Dispose();
+                    picturePoster.Image = null;
+                }
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+
                 File.Copy(_posterPath, destPath, true);
-                posterFileName = newFileName;
+                posterFileName = originalFileName;
+            }
+            else if (string.IsNullOrEmpty(posterFileName))
+            {
+                MessageBox.Show("Выберите постер для фильма.", "Ошибка", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
             Movie movie = new Movie
@@ -115,6 +175,10 @@ namespace ReelRent
                 Year = year,
                 Director = txtDirector.Text,
                 Actors = txtActors.Text,
+                Duration = duration,
+                AgeRating = ageRating,
+                MediaFormat = mediaFormat,
+                Language = txtLanguage.Text,
                 Description = txtDescription.Text,
                 PosterFileName = posterFileName,
                 TotalCopies = totalCopies,
@@ -123,13 +187,9 @@ namespace ReelRent
             };
 
             if (_movie == null)
-            {
                 DatabaseHelper.AddMovie(movie);
-            }
             else
-            {
                 DatabaseHelper.UpdateMovie(movie);
-            }
 
             DialogResult = DialogResult.OK;
             Close();

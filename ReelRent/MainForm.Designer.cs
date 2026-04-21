@@ -204,7 +204,7 @@ namespace ReelRent
             this.btnFilter.Size = new Size(40, 40);
             try { this.btnFilter.Image = Properties.Resources.filter_icon; } catch { this.btnFilter.Text = "⚙️"; }
             this.btnFilter.Cursor = Cursors.Hand;
-            this.btnFilter.Click += (s, e) => ShowFilterDialog();
+            this.btnFilter.Click += BtnFilter_Click;
             this.searchPanel.Controls.Add(this.btnFilter);
 
             this.btnSearch.Location = new Point(this.searchPanel.Width - 45, 5);
@@ -288,7 +288,18 @@ namespace ReelRent
             int searchY = topMargin + (pictureBoxLogo.Height - searchPanel.Height) / 2;
             searchPanel.Location = new Point(searchX, searchY);
         }
-
+        private void BtnFilter_Click(object sender, EventArgs e)
+        {
+            using (var filterForm = new FilterForm())
+            {
+                if (filterForm.ShowDialog() == DialogResult.OK)
+                {
+                    var searchControl = new SearchResultsControl(filterForm.Criteria);
+                    searchControl.BackButtonClicked += (s, ev) => ShowCatalog();
+                    ShowControl(searchControl);
+                }
+            }
+        }
         private void PositionButtonsInCorner()
         {
             if (btnMinimize == null || btnClose == null) return;

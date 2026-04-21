@@ -8,12 +8,15 @@ namespace ReelRent
         public event EventHandler BackButtonClicked;
 
         private ManageMoviesControl _manageMoviesControl;
+        private ManageBannersControl _manageBannersControl;
 
         public AdminControl()
         {
             InitializeComponent();
             _manageMoviesControl = new ManageMoviesControl();
             _manageMoviesControl.BackButtonClicked += (s, e) => ShowMenu();
+            _manageBannersControl = new ManageBannersControl();
+            _manageBannersControl.BackButtonClicked += (s, e) => ShowMenu();
             ShowMenu();
         }
 
@@ -27,16 +30,16 @@ namespace ReelRent
             ShowManageMovies();
         }
 
-        private void btnManageUsers_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Управление пользователями (в разработке).", "Администрирование",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
         private void btnManageBanners_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Управление баннерами (в разработке).", "Администрирование",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            ShowManageBanners();
+        }
+
+        private void ShowManageBanners()
+        {
+            panelContainer.Controls.Clear();
+            _manageBannersControl.Dock = DockStyle.Fill;
+            panelContainer.Controls.Add(_manageBannersControl);
         }
 
         private void ShowMenu()
@@ -46,7 +49,6 @@ namespace ReelRent
             panelContainer.Controls.Add(lblTitle);
             panelContainer.Controls.Add(btnManageMovies);
             panelContainer.Controls.Add(btnManageBanners);
-            panelContainer.Controls.Add(btnManageUsers);
         }
 
         private void ShowManageMovies()

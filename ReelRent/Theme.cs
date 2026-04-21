@@ -23,6 +23,6 @@ namespace ReelRent
         // Цвет для логотипа и акцентных надписей (бежевый)
         public static Color AccentForeColor = Color.FromArgb(245, 239, 225);
         // Шрифт по умолчанию
-        public static Font DefaultFont = new Font("Segoe UI", 10);
+        public static Font DefaultFont = new Font("Segoe UI", 12);
     }
 }

@@ -1,51 +1,75 @@
-﻿    using System;
-    using System.Drawing;
-    using System.Windows.Forms;
+﻿using System;
+using System.Windows.Forms;
 
-    namespace ReelRent
+namespace ReelRent
+{
+    public partial class ProfileControl : UserControl
     {
-        public partial class ProfileControl : UserControl
+        public event EventHandler BackButtonClicked;
+
+        public ProfileControl()
         {
-            public event EventHandler BackButtonClicked;
+            InitializeComponent();
+            LoadUserData();
+        }
 
-            public ProfileControl()
+        private void LoadUserData()
+        {
+            if (Session.CurrentUser != null)
             {
-                InitializeComponent();
-                LoadUserData();
-                LoadRentals();
+                lblUsername.Text = Session.CurrentUser.Username;
+                lblFullName.Text = Session.CurrentUser.FullName ?? "—";
+                lblEmail.Text = Session.CurrentUser.Email ?? "—";
+                lblPhone.Text = Session.CurrentUser.Phone ?? "—";
+                lblAddress.Text = Session.CurrentUser.DeliveryAddress ?? "—";
             }
-
-            private void LoadUserData()
+            else
             {
-                if (Session.CurrentUser != null)
+                lblUsername.Text = "Не авторизован";
+                lblFullName.Text = "—";
+                lblEmail.Text = "—";
+                lblPhone.Text = "—";
+                lblAddress.Text = "—";
+            }
+        }
+
+        private void BtnEditProfile_Click(object sender, EventArgs e)
+        {
+            using (var editForm = new EditProfileForm())
+            {
+                if (editForm.ShowDialog() == DialogResult.OK)
                 {
-                    lblInfo.Text = $"Пользователь: {Session.CurrentUser.Username}\n" +
-                                   $"Имя: {Session.CurrentUser.FullName ?? "—"}\n" +
-                                   $"Email: {Session.CurrentUser.Email ?? "—"}\n" +
-                                   $"Телефон: {Session.CurrentUser.Phone ?? "—"}";
-                }
-                else
-                {
-                    lblInfo.Text = "Не авторизован";
+                    LoadUserData();
                 }
             }
+        }
 
-            private void LoadRentals()
+        private void BtnActiveOrders_Click(object sender, EventArgs e)
+        {
+            using (var ordersForm = new OrdersListForm(onlyActive: true))
             {
-                // Пока заглушка, позже запрос к БД
-                lstCurrentRentals.Items.Clear();
-                lstHistory.Items.Clear();
-
-                lstCurrentRentals.Items.Add("Фильм 1 (до 01.04.2025)");
-                lstCurrentRentals.Items.Add("Фильм 2 (до 15.04.2025)");
-
-                lstHistory.Items.Add("Фильм 3 (возвращён 10.03.2025)");
-                lstHistory.Items.Add("Фильм 4 (возвращён 20.02.2025)");
+                ordersForm.ShowDialog();
             }
+        }
 
-            private void btnBack_Click(object sender, EventArgs e)
+        private void BtnHistoryOrders_Click(object sender, EventArgs e)
+        {
+            using (var ordersForm = new OrdersListForm(onlyActive: false))
             {
+                ordersForm.ShowDialog();
+            }
+        }
+
+        private void BtnLogout_Click(object sender, EventArgs e)
+        {
+            DialogResult result = MessageBox.Show("Вы уверены, что хотите выйти из аккаунта?", "Выход", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                Session.CurrentUser = null; // этого достаточно, IsAuthenticated сам станет false
+                MessageBox.Show("Вы вышли из аккаунта.", "Выход", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Вызываем событие, чтобы основная форма переключилась на каталог
                 BackButtonClicked?.Invoke(this, EventArgs.Empty);
             }
         }
     }
+}

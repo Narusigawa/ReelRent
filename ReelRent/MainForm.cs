@@ -14,11 +14,12 @@ namespace ReelRent
         private CartControl cartControl;
         private ProfileControl profileControl;
         private AdminControl adminControl;
+        private AboutControl aboutControl;
 
         public MainForm()
         {
             InitializeComponent();
-
+            DatabaseHelper.EnsureDefaultBanners();
             // Подписки на события для боковой панели и кнопок
             sidePanel.MouseEnter += PanelOrButton_MouseEnter;
             sidePanel.MouseLeave += PanelOrButton_MouseLeave;
@@ -46,11 +47,14 @@ namespace ReelRent
             cartControl = new CartControl();
             profileControl = new ProfileControl();
             adminControl = new AdminControl();
+            aboutControl = new AboutControl();
 
             // Подписываемся на события возврата
             cartControl.BackButtonClicked += (s, e) => ShowCatalog();
             profileControl.BackButtonClicked += (s, e) => ShowCatalog();
             adminControl.BackButtonClicked += (s, e) => ShowCatalog();
+            aboutControl.BackButtonClicked += (s, e) => ShowCatalog();
+
 
             // Показываем каталог по умолчанию
             ShowCatalog();
@@ -107,9 +111,27 @@ namespace ReelRent
 
         private void BtnCart_Click(object sender, EventArgs e)
         {
-            cartControl = new CartControl();
-            cartControl.BackButtonClicked += (s, ev) => ShowCatalog();
-            ShowControl(cartControl);
+            if (!Session.IsAuthenticated)
+            {
+                LoginForm loginForm = new LoginForm();
+                if (loginForm.ShowDialog() == DialogResult.OK)
+                {
+                    UpdateSidePanelForUser();
+                    cartControl = new CartControl();
+                    cartControl.SetSidePanelWidth(sidePanel.Width);
+                    cartControl.BackButtonClicked += (s, ev) => ShowCatalog();
+                    cartControl.RefreshCart();
+                    ShowControl(cartControl);
+                }
+            }
+            else
+            {
+                cartControl = new CartControl();
+                cartControl.SetSidePanelWidth(sidePanel.Width);
+                cartControl.BackButtonClicked += (s, ev) => ShowCatalog();
+                cartControl.RefreshCart();
+                ShowControl(cartControl);
+            }
         }
 
         private void BtnManage_Click(object sender, EventArgs e)
@@ -128,8 +150,9 @@ namespace ReelRent
 
         private void BtnAbout_Click(object sender, EventArgs e)
         {
-            string info = "Видеопрокат «КиноПрокат»\nВерсия 1.0\nРазработано студентом\n\nПриложение позволяет просматривать каталог фильмов, брать их в аренду, управлять личным кабинетом.\nДля связи: example@mail.ru";
-            MessageBox.Show(info, "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            aboutControl = new AboutControl();
+            aboutControl.BackButtonClicked += (s, ev) => ShowCatalog();
+            ShowControl(aboutControl);
         }
 
         // ========== Анимация боковой панели (без изменений) ==========
@@ -194,6 +217,7 @@ namespace ReelRent
             int newWidth = sidePanel.Width + step;
             newWidth = Math.Max(70, Math.Min(300, newWidth));
             sidePanel.Width = newWidth;
+
             CenterButtonsInPanel();
 
             if (expanding && newWidth > 120 && btnCatalog.Text == "📀")
@@ -208,7 +232,7 @@ namespace ReelRent
             btnProfile.Text = "👤 Личный кабинет";
             btnCart.Text = "🛒 Корзина";
             btnManage.Text = "⚙️ Управление";
-            btnAbout.Text = "ℹ️ О программе";
+            btnAbout.Text = "ℹ️ О видеопрокате";
 
             btnCatalog.TextAlign = ContentAlignment.MiddleLeft;
             btnProfile.TextAlign = ContentAlignment.MiddleLeft;
@@ -283,9 +307,6 @@ namespace ReelRent
             }
         }
 
-        private void ShowFilterDialog()
-        {
-            MessageBox.Show("Форма фильтров будет открыта", "Фильтры", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
+        
     }
 }
